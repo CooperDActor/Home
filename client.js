@@ -1,15 +1,34 @@
+// Initialize Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyB_nMz_YUjuBD0hdOGxbNSN6gN1B47A9_4",
+    authDomain: "cooperisacaller.firebaseapp.com",
+    projectId: "cooperisacaller",
+    storageBucket: "cooperisacaller.appspot.com",
+    messagingSenderId: "218449124123",
+    appId: "1:218449124123:web:8f2dd7adc58611793fd1be",
+    databaseURL: "https://cooperisacaller-default-rtdb.firebaseio.com",
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const database = firebase.database();
+
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
-const startButton = document.getElementById('startButton');
-const endButton = document.getElementById('endButton');
+const callCodeInput = document.getElementById('callCodeInput');
+const joinButton = document.getElementById('joinButton');
 
 let localStream;
 let peerConnection;
+let callCode;
 
-startButton.addEventListener('click', startCall);
-endButton.addEventListener('click', endCall);
+joinButton.addEventListener('click', async () => {
+    callCode = callCodeInput.value.trim();
+    if (callCode === '') {
+        alert('Please enter a valid call code.');
+        return;
+    }
 
-async function startCall() {
     try {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localVideo.srcObject = localStream;
@@ -26,23 +45,34 @@ async function startCall() {
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
 
-        // Send offer to signaling server (not implemented here)
+        // Save offer to Firebase
+        database.ref(`calls/${callCode}/offer`).set({
+            sdp: offer.sdp,
+            type: offer.type
+        });
 
-        // For demo purposes, log offer SDP
-        console.log('Offer SDP:', peerConnection.localDescription.sdp);
+        // Listen for answer from Firebase
+        database.ref(`calls/${callCode}/answer`).on('value', async (snapshot) => {
+            const answer = snapshot.val();
+            if (answer) {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+            }
+        });
+
+        // Listen for ICE candidates from Firebase
+        peerConnection.addEventListener('icecandidate', (event) => {
+            if (event.candidate) {
+                database.ref(`calls/${callCode}/iceCandidates`).push(event.candidate.toJSON());
+            }
+        });
+
     } catch (error) {
-        console.error('Error starting call:', error);
+        console.error('Error joining call:', error);
     }
-}
+});
 
-function endCall() {
-    if (peerConnection) {
-        peerConnection.close();
-        peerConnection = null;
-    }
-    if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-        localStream = null;
-    }
-    remoteVideo.srcObject = null;
-}
+// Listen for ICE candidates from Firebase and add them to the peer connection
+database.ref(`calls/${callCode}/iceCandidates`).on('child_added', (snapshot) => {
+    const candidate = new RTCIceCandidate(snapshot.val());
+    peerConnection.addIceCandidate(candidate);
+});
