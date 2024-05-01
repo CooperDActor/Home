@@ -1,12 +1,13 @@
 // Initialize Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyB_nMz_YUjuBD0hdOGxbNSN6gN1B47A9_4",
-    authDomain: "cooperisacaller.firebaseapp.com",
-    projectId: "cooperisacaller",
-    storageBucket: "cooperisacaller.appspot.com",
-    messagingSenderId: "218449124123",
-    appId: "1:218449124123:web:8f2dd7adc58611793fd1be",
-    databaseURL: "https://cooperisacaller-default-rtdb.firebaseio.com",
+  authDomain: "cooperisacaller.firebaseapp.com",
+  databaseURL: "https://cooperisacaller-default-rtdb.firebaseio.com",
+  projectId: "cooperisacaller",
+  storageBucket: "cooperisacaller.appspot.com",
+  messagingSenderId: "218449124123",
+  appId: "1:218449124123:web:8f2dd7adc58611793fd1be",
+  measurementId: "G-T7RRSPMFVH"
 };
 
 firebase.initializeApp(firebaseConfig);
