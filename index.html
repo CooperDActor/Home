@@ -3,20 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC Video Chat</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Video Call System</title>
 </head>
 <body>
-    <div class="container">
-        <div class="local-video">
-            <video id="localVideo" autoplay muted></video>
-        </div>
-        <div class="remote-video">
-            <video id="remoteVideo" autoplay></video>
-        </div>
-        <button id="startButton">Start Call</button>
-        <button id="endButton">End Call</button>
-    </div>
+    <h1>Video Call System</h1>
+    <input type="text" id="callCodeInput" placeholder="Enter Call Code">
+    <button id="joinButton">Join Call</button>
+    <hr>
+    <video id="localVideo" autoplay></video>
+    <video id="remoteVideo" autoplay></video>
+    <script src="https://www.gstatic.com/firebasejs/9.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.5/firebase-database.js"></script>
     <script src="client.js"></script>
 </body>
 </html>
